@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Reservista</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+
+<div class="login-card">
+    <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    </div>
+    <h1 class="login-title">Reservista</h1>
+    <p class="login-subtitle">Sistema de Reserva de Salas</p>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="text" id="email" class="form-control" placeholder="seu@email.com">
+            <!-- Adicionado style="display: none;" diretamente na tag para garantir que inicie invisivel -->
+            <div id="emailError" class="error-msg" style="display: none;">Por favor, insira um e-mail válido.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" class="form-control" placeholder="••••••••">
+            <!-- Adicionado style="display: none;" diretamente na tag -->
+            <div id="senhaError" class="error-msg" style="display: none;">A senha deve ter pelo menos 8 caracteres.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnEntrar">Entrar</button>
+    </form>
+
+    <div class="login-links">
+        <a href="#">Esqueceu sua senha?</a>
+        <a href="#">Crie uma conta</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const emailInput = document.getElementById('email');
+        const senhaInput = document.getElementById('senha');
+        const emailError = document.getElementById('emailError');
+        const senhaError = document.getElementById('senhaError');
+
+        // Reseta os erros a cada tentativa
+        emailError.style.display = 'none';
+        senhaError.style.display = 'none';
+        emailInput.style.borderColor = 'transparent';
+        senhaInput.style.borderColor = 'transparent';
+
+        let isValid = true;
+
+        // Regex simples de email
+        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+
+        if (!emailInput.value || !emailRegex.test(emailInput.value)) {
+            emailError.style.display = 'block';
+            emailInput.style.borderColor = 'var(--red-text)';
+            isValid = false;
+        }
+
+        if (senhaInput.value.length < 8) {
+            senhaError.style.display = 'block';
+            senhaInput.style.borderColor = 'var(--red-text)';
+            isValid = false;
+        }
+
+        if (isValid) {
+            // Salva o email no localStorage para usar no painel (simula um banco local)
+            localStorage.setItem('userEmail', emailInput.value);
+            window.location.href = 'dashboard.html';
+        }
+    });
+</script>
+</body>
+</html>
