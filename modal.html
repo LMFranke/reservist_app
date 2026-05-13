@@ -8,7 +8,6 @@
 </head>
 <body>
 
-<!-- Header and Background -->
 <header class="header">
     <div class="header-left">
         <div class="logo-icon">
@@ -29,19 +28,17 @@
 <main class="main-content" style="filter: blur(2px);">
     <h1 class="page-title">Salas Disponíveis</h1>
     <div class="room-grid">
-        <div class="room-card"><div class="card-header"><span class="card-title">Sala de Reuniões 1</span></div></div>
+        <div class="room-card"><div class="card-header"><span class="card-title" id="bg-card-title">Sala de Reuniões</span></div></div>
     </div>
 </main>
 
-<!-- Modal Overlay -->
 <div class="modal-overlay">
     <div class="modal-content">
-
         <div class="modal-header">
             <div>
                 <div class="modal-title-group">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <h2 class="modal-title">Sala de Reuniões 1</h2>
+                    <h2 class="modal-title" id="main-modal-title">Sala de Reuniões 1</h2>
                 </div>
                 <p class="modal-subtitle">Visualize o cronograma e faça uma reserva clicando em um horário livre</p>
             </div>
@@ -51,7 +48,6 @@
         </div>
 
         <div class="modal-body">
-
             <div class="alert-box">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                 <div class="alert-text">
@@ -62,20 +58,16 @@
 
             <div class="schedule-section">
                 <h3>Cronograma do Dia</h3>
-                <div class="schedule-list">
-
+                <div class="schedule-list" id="scheduleList">
                     <div class="schedule-item occupied">
                         <div class="time-info">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span>07:30 às 09:30</span>
                         </div>
-                        <div class="occupant-info">
-                            Reunião Diretoria
-                        </div>
+                        <div class="occupant-info">Reunião Diretoria</div>
                     </div>
 
-                    <!-- Itens LIVRES que o JS vai escutar -->
-                    <div class="schedule-item free">
+                    <div class="schedule-item free" data-time="09:30 às 12:30">
                         <div class="time-info">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span>09:30 às 12:30</span>
@@ -99,7 +91,7 @@
                         <div class="occupant-info">Jorge Silva</div>
                     </div>
 
-                    <div class="schedule-item free">
+                    <div class="schedule-item free" data-time="15:30 às 17:00">
                         <div class="time-info">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span>15:30 às 17:00</span>
@@ -107,14 +99,13 @@
                         <span class="pill green" style="margin-bottom: 0;">Livre</span>
                     </div>
 
-                    <div class="schedule-item free">
+                    <div class="schedule-item free" data-time="17:00 às 18:00">
                         <div class="time-info">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span>17:00 às 18:00</span>
                         </div>
                         <span class="pill green" style="margin-bottom: 0;">Livre</span>
                     </div>
-
                 </div>
             </div>
 
@@ -132,50 +123,82 @@
 </div>
 
 <script>
-    // Puxa email no cabeçalho
-    const userEmail = localStorage.getItem('userEmail');
-    if(userEmail) document.getElementById('modal-email-display').textContent = userEmail;
+    document.addEventListener('DOMContentLoaded', () => {
+        const userEmail = localStorage.getItem('userEmail');
+        if(userEmail) document.getElementById('modal-email-display').textContent = userEmail;
 
-    const freeSlots = document.querySelectorAll('.schedule-item.free');
-    const confirmBox = document.getElementById('confirmBox');
-    const confirmTimeText = document.getElementById('confirmTimeText');
-    const btnCancelar = document.getElementById('btnCancelar');
-    const btnConfirmar = document.getElementById('btnConfirmar');
+        // Identifica qual sala foi clicada através do URL ?roomId=X
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('roomId') || '1'; // Se não houver, assume Sala 1
 
-    freeSlots.forEach(slot => {
-        slot.addEventListener('click', function() {
-            freeSlots.forEach(s => s.classList.remove('selected'));
-            this.classList.add('selected');
+        const roomNames = {
+            '1': 'Sala de Reuniões 1',
+            '2': 'Sala de Reuniões 2',
+            '3': 'Sala de Treinamento',
+            '4': 'Sala Executiva'
+        };
+        const roomName = roomNames[roomId] || ('Sala ' + roomId);
 
-            // Encontra o span com a hora dentro da div clicada
-            const timeText = this.querySelector('.time-info span').textContent.trim();
+        // Atualiza os títulos no modal
+        document.getElementById('main-modal-title').textContent = roomName;
+        document.getElementById('bg-card-title').textContent = roomName;
 
-            confirmTimeText.textContent = 'Horário selecionado: ' + timeText;
-            confirmBox.style.display = 'block';
+        const reserva = localStorage.getItem('reservaSala' + roomId);
+        const slots = document.querySelectorAll('.schedule-item[data-time]');
 
-            document.querySelector('.modal-body').scrollTo({
-                top: document.querySelector('.modal-body').scrollHeight,
-                behavior: 'smooth'
+        // Atualiza a visualização do modal se o usuário já tiver uma reserva
+        slots.forEach(slot => {
+            const timeText = slot.getAttribute('data-time');
+            if(timeText === reserva) {
+                // Modifica o item de Livre para Ocupado pela reserva do usuário
+                slot.className = 'schedule-item occupied';
+                slot.innerHTML = `
+                    <div class="time-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>${timeText}</span>
+                    </div>
+                    <div class="occupant-info" style="color: var(--primary); font-weight: 500;">Sua Reserva</div>
+                `;
+            }
+        });
+
+        // Lógica de seleção
+        const freeSlots = document.querySelectorAll('.schedule-item.free');
+        const confirmBox = document.getElementById('confirmBox');
+        const confirmTimeText = document.getElementById('confirmTimeText');
+        const btnCancelar = document.getElementById('btnCancelar');
+        const btnConfirmar = document.getElementById('btnConfirmar');
+
+        freeSlots.forEach(slot => {
+            slot.addEventListener('click', function() {
+                freeSlots.forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+
+                const timeText = this.getAttribute('data-time');
+                confirmTimeText.textContent = 'Horário selecionado: ' + timeText;
+                confirmBox.style.display = 'block';
+
+                document.querySelector('.modal-body').scrollTo({
+                    top: document.querySelector('.modal-body').scrollHeight,
+                    behavior: 'smooth'
+                });
             });
         });
-    });
 
-    btnCancelar.addEventListener('click', function() {
-        freeSlots.forEach(s => s.classList.remove('selected'));
-        confirmBox.style.display = 'none';
-    });
+        btnCancelar.addEventListener('click', function() {
+            freeSlots.forEach(s => s.classList.remove('selected'));
+            confirmBox.style.display = 'none';
+        });
 
-    btnConfirmar.addEventListener('click', function() {
-        const selectedSlot = document.querySelector('.schedule-item.selected');
-        if (selectedSlot) {
-            const timeText = selectedSlot.querySelector('.time-info span').textContent.trim();
-
-            // Salva a reserva no navegador para o Dashboard ler
-            localStorage.setItem('reservaSala1', timeText);
-
-            alert('Reserva concluída! O dashboard será atualizado.');
-            window.location.href = 'dashboard.html';
-        }
+        btnConfirmar.addEventListener('click', function() {
+            const selectedSlot = document.querySelector('.schedule-item.selected');
+            if (selectedSlot) {
+                const timeText = selectedSlot.getAttribute('data-time');
+                // Salva a reserva com o ID específico da sala
+                localStorage.setItem('reservaSala' + roomId, timeText);
+                window.location.href = 'dashboard.html';
+            }
+        });
     });
 </script>
 </body>

@@ -19,14 +19,12 @@
         <div class="form-group">
             <label for="email">E-mail</label>
             <input type="text" id="email" class="form-control" placeholder="seu@email.com">
-            <!-- Adicionado style="display: none;" diretamente na tag para garantir que inicie invisivel -->
             <div id="emailError" class="error-msg" style="display: none;">Por favor, insira um e-mail válido.</div>
         </div>
 
         <div class="form-group">
             <label for="senha">Senha</label>
             <input type="password" id="senha" class="form-control" placeholder="••••••••">
-            <!-- Adicionado style="display: none;" diretamente na tag -->
             <div id="senhaError" class="error-msg" style="display: none;">A senha deve ter pelo menos 8 caracteres.</div>
         </div>
 
@@ -48,16 +46,14 @@
         const emailError = document.getElementById('emailError');
         const senhaError = document.getElementById('senhaError');
 
-        // Reseta os erros a cada tentativa
+        // Reseta estados
         emailError.style.display = 'none';
         senhaError.style.display = 'none';
-        emailInput.style.borderColor = 'transparent';
-        senhaInput.style.borderColor = 'transparent';
+        emailInput.style.borderColor = '';
+        senhaInput.style.borderColor = '';
 
         let isValid = true;
-
-        // Regex simples de email
-        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailInput.value || !emailRegex.test(emailInput.value)) {
             emailError.style.display = 'block';
@@ -72,7 +68,6 @@
         }
 
         if (isValid) {
-            // Salva o email no localStorage para usar no painel (simula um banco local)
             localStorage.setItem('userEmail', emailInput.value);
             window.location.href = 'dashboard.html';
         }

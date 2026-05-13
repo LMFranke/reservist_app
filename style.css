@@ -219,6 +219,7 @@ body {
     text-decoration: none;
     color: inherit;
     display: block;
+    position: relative;
 }
 
 .room-card:hover {
@@ -258,6 +259,7 @@ body {
 
 .pill.red { background-color: var(--red-bg); color: var(--red-text); }
 .pill.green { background-color: var(--green-bg); color: var(--green-text); }
+.pill.primary { background-color: var(--primary); color: white; }
 
 .card-occupant {
     font-size: 0.875rem;
@@ -269,6 +271,25 @@ body {
 .card-footer {
     font-size: 0.875rem;
     color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-cancelar-reserva {
+    background: transparent;
+    border: 1px solid var(--red-border);
+    color: var(--red-text);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: none; /* starts hidden */
+    position: relative;
+    z-index: 10;
+}
+.btn-cancelar-reserva:hover {
+    background: var(--red-bg);
 }
 
 /* ================= MODAL ================= */
