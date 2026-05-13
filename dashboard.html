@@ -31,7 +31,6 @@
     <p class="page-subtitle">Visualize e reserve salas de reunião</p>
 
     <div class="room-grid">
-        <!-- Sala 1 -->
         <a href="modal.html?roomId=1" class="room-card" id="sala1-card">
             <div class="card-header">
                 <span class="card-title">Sala de Reuniões 1</span>
@@ -45,7 +44,6 @@
             </div>
         </a>
 
-        <!-- Sala 2 -->
         <a href="modal.html?roomId=2" class="room-card" id="sala2-card">
             <div class="card-header">
                 <span class="card-title">Sala de Reuniões 2</span>
@@ -54,35 +52,33 @@
             <span class="pill green" id="sala2-pill">Livre</span>
             <p class="card-occupant" id="sala2-occupant"></p>
             <div class="card-footer">
-                <span id="sala2-footer-text">3 horários livres hoje</span>
+                <span id="sala2-footer-text">Clique para reservar</span>
                 <button type="button" id="btnCancelarReserva2" class="btn-cancelar-reserva" style="display: none;">Cancelar</button>
             </div>
         </a>
 
-        <!-- Sala 3 -->
         <a href="modal.html?roomId=3" class="room-card" id="sala3-card">
             <div class="card-header">
                 <span class="card-title">Sala de Treinamento</span>
-                <span class="status-dot green" id="sala3-dot"></span>
+                <span class="status-dot red" id="sala3-dot"></span>
             </div>
-            <span class="pill green" id="sala3-pill">Livre</span>
-            <p class="card-occupant" id="sala3-occupant"></p>
+            <span class="pill red" id="sala3-pill">Ocupada</span>
+            <p class="card-occupant" id="sala3-occupant">Equipe de Automação - Testes do Protocolo SLMP</p>
             <div class="card-footer">
-                <span id="sala3-footer-text">4 horários livres hoje</span>
+                <span id="sala3-footer-text">Livre após as 16:00</span>
                 <button type="button" id="btnCancelarReserva3" class="btn-cancelar-reserva" style="display: none;">Cancelar</button>
             </div>
         </a>
 
-        <!-- Sala 4 -->
         <a href="modal.html?roomId=4" class="room-card" id="sala4-card">
             <div class="card-header">
                 <span class="card-title">Sala Executiva</span>
                 <span class="status-dot red" id="sala4-dot"></span>
             </div>
-            <span class="pill red" id="sala4-pill">Ocupada</span>
-            <p class="card-occupant" id="sala4-occupant">Diretoria até 17:00</p>
+            <span class="pill red" id="sala4-pill">Ocupada o dia todo</span>
+            <p class="card-occupant" id="sala4-occupant">Diretoria - Estratégias de Vendas</p>
             <div class="card-footer">
-                <span id="sala4-footer-text">2 horários livres hoje</span>
+                <span id="sala4-footer-text">Sem horários livres hoje</span>
                 <button type="button" id="btnCancelarReserva4" class="btn-cancelar-reserva" style="display: none;">Cancelar</button>
             </div>
         </a>
@@ -91,6 +87,12 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+
+        if (!localStorage.getItem('mockIniciado')) {
+            localStorage.setItem('reservaSala2', '14:00 às 15:30');
+            localStorage.setItem('mockIniciado', 'true');
+        }
+
         const userEmail = localStorage.getItem('userEmail');
         if(userEmail) {
             document.getElementById('user-email-display').textContent = userEmail;
@@ -103,7 +105,6 @@
             const btnCancelar = document.getElementById('btnCancelarReserva' + id);
 
             if (reserva) {
-                // Modifica o card para "Ocupada (Sua Reserva)"
                 document.getElementById('sala' + id + '-dot').className = 'status-dot red';
 
                 const pill = document.getElementById('sala' + id + '-pill');
@@ -116,7 +117,8 @@
                 btnCancelar.style.display = 'block';
 
                 btnCancelar.addEventListener('click', function(e) {
-                    e.preventDefault(); // Impede o clique de abrir o modal
+                    e.preventDefault();
+                    e.stopPropagation();
                     localStorage.removeItem('reservaSala' + id);
                     window.location.reload();
                 });
