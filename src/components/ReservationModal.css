@@ -1,0 +1,262 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    padding: 1.5rem 1.5rem 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-title-group svg {
+    width: 24px;
+    height: 24px;
+}
+
+.close-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-body {
+    padding: 1rem 1.5rem 1.5rem;
+    overflow-y: auto;
+}
+
+.alert-box {
+    background-color: var(--red-bg);
+    border: 1px solid var(--red-border);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    color: var(--red-text);
+    margin-bottom: 1.5rem;
+}
+
+.schedule-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.schedule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.schedule-item.occupied {
+    background-color: var(--input-bg);
+    color: var(--text-muted);
+}
+
+.schedule-item:not(.occupied):hover {
+    border-color: var(--green-border);
+}
+
+.schedule-item.selected {
+    border: 2px solid var(--primary, #10b981);
+    background-color: #f0fdf4;
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+.time-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-info svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+}
+
+.occupant-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.confirm-box {
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    margin-top: 1rem;
+}
+
+#confirmTimeText {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: #1e293b;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.confirm-actions .btn-outline {
+    padding: 0.6rem 1.2rem;
+    background-color: transparent;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #475569;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confirm-actions .btn-outline:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.confirm-actions .btn-primary {
+    padding: 0.6rem 1.5rem;
+    background-color: #10b981;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    width: auto;
+    margin-top: 0;
+}
+
+.confirm-actions .btn-primary:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+}
+
+/* Destaque sutil para as suas reservas na lista */
+.schedule-item.my-reservation {
+    background-color: #f0fdf4;
+    border: 1px solid var(--green-border);
+}
+
+.schedule-item.my-reservation:hover {
+    border-color: #10b981;
+}
+
+/* Botão Vermelho de Cancelamento */
+.confirm-actions .btn-danger {
+    padding: 0.6rem 1.5rem;
+    background-color: #ef4444;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    width: auto;
+    margin-top: 0;
+}
+
+.confirm-actions .btn-danger:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+}
+
+.date-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+}
+
+.nav-date-btn {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #475569;
+    transition: all 0.2s;
+}
+
+.nav-date-btn:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.nav-date-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.current-date-display {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    text-transform: capitalize; /* Deixa o dia da semana em maiúsculo */
+}

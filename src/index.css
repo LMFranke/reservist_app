@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --bg-color: #f4f5f7;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --primary: #0b0f19;
+    --input-bg: #f3f4f6;
+    --red-bg: #fee2e2;
+    --red-text: #dc2626;
+    --red-border: #fca5a5;
+    --green-bg: #dcfce7;
+    --green-text: #16a34a;
+    --green-border: #86efac;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ================= COMPONENTES GERAIS ================= */
+.form-group {
+    text-align: left;
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--input-bg);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    outline: none;
+    transition: border 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--border-color);
+}
+
+.error-msg {
+    color: var(--red-text);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s;
+    text-decoration: none;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.btn-outline {
+    background-color: white;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
