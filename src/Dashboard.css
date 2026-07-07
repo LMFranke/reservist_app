@@ -83,10 +83,8 @@
     font-size: 1rem;
 }
 
-/* --- GRID RESPONSIVO --- */
 .room-grid {
     display: grid;
-    /* Em celulares, 1 coluna. Em iPads/Notebooks, 2 colunas largas */
     grid-template-columns: 1fr;
     gap: 1.5rem;
 }
@@ -106,9 +104,9 @@
     cursor: pointer;
     transition: box-shadow 0.2s, transform 0.2s;
     display: flex;
-    flex-direction: column; /* Permite empurrar o footer para baixo */
+    flex-direction: column;
     justify-content: space-between;
-    min-height: 250px; /* Garante uma altura mínima para dar robustez */
+    min-height: 250px;
 }
 
 .room-card:hover {
@@ -126,7 +124,7 @@
 
 .card-title {
     font-weight: 600;
-    font-size: 1.15rem; /* Título um pouco maior */
+    font-size: 1.15rem;
     color: #0f172a;
 }
 
@@ -148,7 +146,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* Restante das cores das pills mantém... */
 .pill.red { background-color: var(--red-bg); color: var(--red-text); }
 .pill.green { background-color: var(--green-bg); color: var(--green-text); }
 .pill.primary { background-color: var(--primary); color: white; }
@@ -158,11 +155,11 @@
     color: var(--text-muted);
     margin-bottom: 1rem;
     margin-top: 0.5rem;
-    min-height: 22px; /* <--- ADICIONE ESTA LINHA AQUI */
+    min-height: 22px;
 }
 
 .card-footer {
-    margin-top: auto; /* Empurra o footer sempre pro fundo do card */
+    margin-top: auto;
     padding-top: 1.5rem;
     font-size: 0.875rem;
     color: var(--text-muted);
@@ -189,9 +186,6 @@
     background: var(--red-bg);
 }
 
-/* =========================================
-   NOVA SEÇÃO: INFORMAÇÕES ESTENDIDAS NO CARD
-========================================= */
 .card-extended-info {
     margin-top: 1rem;
     padding-top: 1.25rem;
@@ -199,7 +193,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    flex-grow: 1; /* Preenche o espaço extra */
+    flex-grow: 1;
 }
 
 .info-row {
@@ -251,16 +245,12 @@
     align-items: center;
 }
 
-/* Se for uma tag da minha reserva, deixo ela verde com destaque */
 .card-extended-info .time-tag {
     background-color: var(--green-bg);
     border-color: var(--green-border);
     color: var(--green-text);
 }
 
-/* =========================================
-   BOTÃO DE EDIÇÃO ADMIN (NO CARD)
-========================================= */
 .btn-edit-room {
     background: transparent;
     border: 1px solid #e2e8f0;
@@ -282,15 +272,12 @@
     color: #0f172a;
 }
 
-/* =========================================
-   BOTÃO DE ADICIONAR SALA (ADMIN)
-========================================= */
 .btn-add-room {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.6rem 1.25rem;
-    background-color: var(--primary, #0b0f19); /* Cor principal do projeto */
+    background-color: var(--primary, #0b0f19);
     color: white;
     border: none;
     border-radius: 8px;
@@ -303,7 +290,7 @@
 }
 
 .btn-add-room:hover {
-    background-color: #1e293b; /* Fica um pouco mais claro ao passar o mouse */
+    background-color: #1e293b;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
@@ -311,4 +298,18 @@
 .btn-add-room svg {
     width: 18px;
     height: 18px;
+}
+
+.card-extended-info {
+    margin: 0;
+    padding-top: 1.25rem;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-grow: 1;
+}
+
+.card-extended-info dd {
+    margin: 0;
 }

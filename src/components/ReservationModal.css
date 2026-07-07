@@ -186,7 +186,6 @@
     box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
 }
 
-/* Destaque sutil para as suas reservas na lista */
 .schedule-item.my-reservation {
     background-color: #f0fdf4;
     border: 1px solid var(--green-border);
@@ -196,7 +195,6 @@
     border-color: #10b981;
 }
 
-/* Botão Vermelho de Cancelamento */
 .confirm-actions .btn-danger {
     padding: 0.6rem 1.5rem;
     background-color: #ef4444;
@@ -258,10 +256,9 @@
     font-size: 0.95rem;
     font-weight: 600;
     color: #1e293b;
-    text-transform: capitalize; /* Deixa o dia da semana em maiúsculo */
+    text-transform: capitalize;
 }
 
-/* Efeito para o Admin saber que pode clicar onde outras pessoas não podem */
 .schedule-item.admin-clickable:hover {
     border-color: #ef4444;
     background-color: #fef2f2;

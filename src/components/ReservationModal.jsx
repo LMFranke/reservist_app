@@ -21,7 +21,6 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
     const chaveDataAtual = formatarChaveData(dataSelecionada);
     const minhasReservasNoDia = minhasReservas[chaveDataAtual] || [];
 
-    // Pega as reservas de outras contas neste dia específico
     const terceirosNoDia = reservasTerceiros[chaveDataAtual] || {};
 
     const isHoje = chaveDataAtual === formatarChaveData(hoje);
@@ -76,38 +75,37 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
     };
 
     return (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="main-modal-title">
             <div className="modal-content">
-                <div className="modal-header">
+                <header className="modal-header">
                     <div className="modal-title-group">
                         <div className="icon-box" style={{ backgroundColor: isAdmin ? '#fef2f2' : '#f1f5f9', color: isAdmin ? '#ef4444' : '#64748b' }}>
-                            {isAdmin ? <span style={{ fontSize: '1.2rem' }}>🛡️</span> : <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>}
+                            {isAdmin ? <span style={{ fontSize: '1.2rem' }}>🛡️</span> : <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>}
                         </div>
                         <div>
                             <h2 id="main-modal-title">{room.title} {isAdmin && <span style={{fontSize:'0.8rem', color:'#ef4444', marginLeft:'0.5rem'}}>Modo Admin</span>}</h2>
                             <p>Agende horários com até 1 semana de antecedência</p>
                         </div>
                     </div>
-                    <button className="close-btn" onClick={onClose}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <button type="button" className="close-btn" onClick={onClose} aria-label="Fechar janela">
+                        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
-                </div>
+                </header>
 
                 <nav className="date-navigation" aria-label="Navegação de datas">
-                    <button className="nav-date-btn" onClick={voltarDia} disabled={isHoje}>&larr;</button>
+                    <button type="button" className="nav-date-btn" onClick={voltarDia} disabled={isHoje} aria-label="Dia anterior">&larr;</button>
                     <time className="current-date-display" dateTime={chaveDataAtual}>{formatarDataExibicao(dataSelecionada)}</time>
-                    <button className="nav-date-btn" onClick={avancarDia} disabled={isLimite}>&rarr;</button>
+                    <button type="button" className="nav-date-btn" onClick={avancarDia} disabled={isLimite} aria-label="Próximo dia">&rarr;</button>
                 </nav>
 
-                <div className="modal-body">
-                    <section className="schedule-section">
+                <main className="modal-body">
+                    <section className="schedule-section" aria-label="Lista de horários">
                         <ul className="schedule-list" style={{ listStyle: 'none', padding: 0 }}>
                             {SCHEDULE_TIMES.map((time) => {
                                 const isMinhaReservaAqui = minhasReservasNoDia.includes(time);
-                                const ocupanteUsuarioReal = terceirosNoDia[time]; // E-mail de quem reservou real
-                                const ocupanteMock = isHoje ? ocupacoesMock?.[time] : null; // Nome mockado (ex: Diretoria)
+                                const ocupanteUsuarioReal = terceirosNoDia[time];
+                                const ocupanteMock = isHoje ? ocupacoesMock?.[time] : null;
 
-                                // O nome exibido dá preferência ao sistema real, depois ao mock
                                 const ocupanteFinal = ocupanteUsuarioReal || ocupanteMock;
 
                                 const passou = isSlotInPast(time);
@@ -132,14 +130,13 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
                                         style={{ cursor: isClickable ? 'pointer' : 'default' }}
                                     >
                                         <div className="time-info">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                             <span>{time}</span>
                                         </div>
 
                                         {isFree && <span className="pill green" style={{ marginBottom: 0 }}>Livre</span>}
                                         {isMinhaReservaAqui && <div className="occupant-info" style={{ color: 'var(--primary)', fontWeight: 500 }}>Sua Reserva</div>}
 
-                                        {/* Exibe o E-mail de quem reservou, ou a string Mockada (Ex: Equipe de Automação) */}
                                         {ocupanteFinal && !isMinhaReservaAqui && (
                                             <div className="occupant-info" style={{ color: 'var(--text-muted)' }}>
                                                 {ocupanteFinal}
@@ -152,25 +149,25 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
                             })}
                         </ul>
                     </section>
-                </div>
+                </main>
 
                 {selectedTime && (
-                    <div className="confirm-box" style={{ display: 'block', backgroundColor: actionType === 'admin_override' ? '#fef2f2' : '#f8fafc', borderColor: actionType === 'admin_override' ? '#fca5a5' : '#e2e8f0' }}>
+                    <aside className="confirm-box" role="alert" style={{ display: 'block', backgroundColor: actionType === 'admin_override' ? '#fef2f2' : '#f8fafc', borderColor: actionType === 'admin_override' ? '#fca5a5' : '#e2e8f0' }}>
                         <p id="confirmTimeText" style={{ color: actionType === 'admin_override' ? '#991b1b' : '#1e293b' }}>
                             {actionType === 'reserve' && `Confirmar agendamento para ${dataSelecionada.getDate()}/${dataSelecionada.getMonth()+1} das ${selectedTime}?`}
                             {actionType === 'cancel' && `Deseja cancelar sua reserva das ${selectedTime}?`}
-                            {actionType === 'admin_override' && `Forçar exclusão da reserva de terceiros das ${selectedTime}?`}
+                            {actionType === 'admin_override' && `ATENÇÃO: Forçar exclusão da reserva de terceiros das ${selectedTime}?`}
                         </p>
                         <div className="confirm-actions">
-                            <button className="btn-outline" onClick={() => { setSelectedTime(null); setActionType(null); }}>Voltar</button>
-                            {actionType === 'reserve' && <button className="btn-primary" onClick={handleConfirm}>Confirmar Reserva</button>}
+                            <button type="button" className="btn-outline" onClick={() => { setSelectedTime(null); setActionType(null); }}>Voltar</button>
+                            {actionType === 'reserve' && <button type="button" className="btn-primary" onClick={handleConfirm}>Confirmar Reserva</button>}
                             {(actionType === 'cancel' || actionType === 'admin_override') && (
-                                <button className="btn-danger" style={{ backgroundColor: '#ef4444' }} onClick={handleConfirm}>
+                                <button type="button" className="btn-danger" style={{ backgroundColor: '#ef4444' }} onClick={handleConfirm}>
                                     {actionType === 'admin_override' ? 'Forçar Exclusão' : 'Cancelar Reserva'}
                                 </button>
                             )}
                         </div>
-                    </div>
+                    </aside>
                 )}
             </div>
         </div>

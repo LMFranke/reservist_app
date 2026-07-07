@@ -4,6 +4,7 @@ import RoomCard from './components/RoomCard';
 import ReservationModal from './components/ReservationModal';
 import RoomManagerModal from './components/RoomManagerModal';
 import './Dashboard.css';
+import ConfirmModal from './components/ConfirmModal';
 
 const DEFAULT_ROOMS = [
     { id: 1, title: 'Sala de Reuniões 1', footerText: 'Clique para reservar' },
@@ -20,7 +21,6 @@ const DEFAULT_MOCKS = {
 export default function Dashboard() {
     const navigate = useNavigate();
 
-    // Agora o React já nasce sabendo quem é o usuário, sem atrasos!
     const [userEmail, setUserEmail] = useState(localStorage.getItem('userEmail') || '');
     const [userName, setUserName] = useState(localStorage.getItem('userName') || '');
     const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'USER');
@@ -28,13 +28,13 @@ export default function Dashboard() {
     const [rooms, setRooms] = useState([]);
     const [mocks, setMocks] = useState({});
 
-    // Agora separamos: As MINHAS reservas, e as reservas DOS OUTROS (Terceiros)
     const [minhasReservas, setMinhasReservas] = useState({});
     const [reservasTerceiros, setReservasTerceiros] = useState({});
 
     const [activeModalRoomId, setActiveModalRoomId] = useState(null);
     const [isRoomManagerOpen, setIsRoomManagerOpen] = useState(false);
     const [roomToEdit, setRoomToEdit] = useState(null);
+    const [roomToDelete, setRoomToDelete] = useState(null);
 
     useEffect(() => {
         const email = localStorage.getItem('userEmail');
@@ -54,7 +54,6 @@ export default function Dashboard() {
         if (storedMocks) setMocks(JSON.parse(storedMocks));
         else { setMocks(DEFAULT_MOCKS); localStorage.setItem('appMocks', JSON.stringify(DEFAULT_MOCKS)); }
 
-        // --- NOVA LÓGICA: Leitura inteligente de donos ---
         const minhasReservasAtuais = {};
         const terceirosAtuais = {};
 
@@ -72,14 +71,12 @@ export default function Dashboard() {
                         const parsed = JSON.parse(savedData);
                         let dayData = {};
 
-                        // Migração de segurança: Se ainda estiver no formato antigo de Array, converte
                         if (Array.isArray(parsed)) {
                             parsed.forEach(t => dayData[t] = 'Usuário Antigo');
                         } else {
                             dayData = parsed;
                         }
 
-                        // Separa quem é dono do quê
                         for (const [time, ownerEmail] of Object.entries(dayData)) {
                             if (ownerEmail === email) {
                                 if (!minhasReservasAtuais[room.id][dataChave]) minhasReservasAtuais[room.id][dataChave] = [];
@@ -119,12 +116,18 @@ export default function Dashboard() {
     };
 
     const handleDeleteRoom = (roomId) => {
-        if(window.confirm("Atenção Admin: Tem certeza que deseja excluir esta sala permanentemente?")) {
-            const updatedRooms = rooms.filter(r => r.id !== roomId);
+        setRoomToDelete(roomId);
+    };
+
+    const executeDeleteRoom = () => {
+        if (roomToDelete) {
+            const updatedRooms = rooms.filter(r => r.id !== roomToDelete);
             setRooms(updatedRooms);
             localStorage.setItem('appRooms', JSON.stringify(updatedRooms));
+
             setIsRoomManagerOpen(false);
             setRoomToEdit(null);
+            setRoomToDelete(null);
         }
     };
 
@@ -133,7 +136,6 @@ export default function Dashboard() {
         setIsRoomManagerOpen(true);
     };
 
-    // --- NOVA LÓGICA: Salvar atribuindo o email do autor ---
     const handleConfirmReservation = (roomId, dataChave, timeText) => {
         const key = `reservaSala${roomId}_${dataChave}`;
         let dayData = JSON.parse(localStorage.getItem(key) || '{}');
@@ -142,7 +144,6 @@ export default function Dashboard() {
             let temp = {}; dayData.forEach(t => temp[t] = 'Usuário Antigo'); dayData = temp;
         }
 
-        // Associa o horário ao email do usuário logado
         dayData[timeText] = userEmail;
         localStorage.setItem(key, JSON.stringify(dayData));
 
@@ -161,9 +162,7 @@ export default function Dashboard() {
             let temp = {}; dayData.forEach(t => temp[t] = 'Usuário Antigo'); dayData = temp;
         }
 
-        // Se o Admin está deletando a força
         if (isAdminDeletingMock) {
-            // Verifica se é uma reserva de sistema (terceiro real) ou mock estático
             if (dayData[timeText]) {
                 delete dayData[timeText];
                 if (Object.keys(dayData).length === 0) localStorage.removeItem(key);
@@ -187,7 +186,6 @@ export default function Dashboard() {
             return;
         }
 
-        // Comportamento normal do usuário deletando a própria reserva
         if (timeText) {
             delete dayData[timeText];
             if (Object.keys(dayData).length === 0) localStorage.removeItem(key);
@@ -199,7 +197,6 @@ export default function Dashboard() {
                 return { ...prev, [roomId]: roomRes };
             });
         } else {
-            // Cancelar tudo de hoje direto pelo card
             const myTimes = minhasReservas[roomId]?.[dataChave] || [];
             myTimes.forEach(t => delete dayData[t]);
             if (Object.keys(dayData).length === 0) localStorage.removeItem(key);
@@ -214,20 +211,22 @@ export default function Dashboard() {
     };
 
     const getDisplayName = () => {
-        if (isAdmin) return 'Administrador';
+        if (isAdmin) {
+            return 'Administrador';
+        }
 
-        // Blindagem tripla para garantir que o nome real seja usado
         if (userName && userName !== 'undefined' && userName !== 'null' && userName.trim() !== '') {
             return userName;
         }
 
-        // Fallback de segurança
         const prefix = userEmail.split('@')[0];
         return prefix.charAt(0).toUpperCase() + prefix.slice(1);
     };
 
     const getAvatarLetter = () => {
-        if (isAdmin) return 'A';
+        if (isAdmin) {
+            return 'A';
+        }
         if (userName && userName !== 'undefined' && userName !== 'null' && userName.trim() !== '') {
             return userName.charAt(0).toUpperCase();
         }
@@ -245,7 +244,7 @@ export default function Dashboard() {
                         className="avatar"
                         style={{
                             backgroundColor: isAdmin ? '#fef2f2' : '#e0f2fe',
-                            color: isAdmin ? '#ef4444' : '#0284c7', // Azul sutil para usuários comuns
+                            color: isAdmin ? '#ef4444' : '#0284c7',
                             fontWeight: '600'
                         }}
                     >
@@ -260,22 +259,21 @@ export default function Dashboard() {
             </header>
 
             <main className="main-content">
-                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h2>Salas Disponíveis</h2>
+                        <h1>Salas Disponíveis</h1>
                         <p>Visualize e reserve salas de reunião</p>
                     </div>
                     {isAdmin && (
-                        <button className="btn-add-room" onClick={() => { setRoomToEdit(null); setIsRoomManagerOpen(true); }}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <button className="btn-add-room" onClick={() => { setRoomToEdit(null); setIsRoomManagerOpen(true); }} aria-label="Criar nova sala">
+                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Nova Sala
                         </button>
                     )}
-                </div>
+                </header>
 
-                <div className="room-grid">
+                <section className="room-grid" aria-label="Lista de Salas de Reunião">
                     {rooms.map(room => {
-                        // Combina os mocks estáticos de hoje com as reservas reais de outros usuários para o Card saber exibir
                         const terceirosHoje = reservasTerceiros[room.id]?.[hojeChave] || {};
                         const mocksHoje = mocks[room.id] || {};
                         const ocupacoesCombinadas = { ...mocksHoje, ...terceirosHoje };
@@ -293,7 +291,7 @@ export default function Dashboard() {
                             />
                         );
                     })}
-                </div>
+                </section>
             </main>
 
             {activeModalRoomId && (
@@ -301,7 +299,7 @@ export default function Dashboard() {
                     room={rooms.find(r => r.id === activeModalRoomId)}
                     ocupacoesMock={mocks[activeModalRoomId]}
                     minhasReservas={minhasReservas[activeModalRoomId] || {}}
-                    reservasTerceiros={reservasTerceiros[activeModalRoomId] || {}} /* Enviamos as de terceiros pro modal também! */
+                    reservasTerceiros={reservasTerceiros[activeModalRoomId] || {}}
                     isAdmin={isAdmin}
                     onClose={() => setActiveModalRoomId(null)}
                     onConfirm={handleConfirmReservation}
@@ -315,6 +313,15 @@ export default function Dashboard() {
                     onClose={() => setIsRoomManagerOpen(false)}
                     onSave={handleSaveRoom}
                     onDelete={handleDeleteRoom}
+                />
+            )}
+
+            {roomToDelete && (
+                <ConfirmModal
+                    title="Excluir Sala Definitivamente?"
+                    message="ATENÇÃO: Você está prestes a excluir esta sala do sistema. Todos os horários vinculados a ela serão perdidos. Essa ação não pode ser desfeita."
+                    onConfirm={executeDeleteRoom}
+                    onCancel={() => setRoomToDelete(null)}
                 />
             )}
         </div>

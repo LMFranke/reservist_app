@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
-import Register from './Register'; // IMPORTAMOS A TELA NOVA
+import Register from './Register';
 import Dashboard from './Dashboard';
 import './index.css';
 
@@ -9,7 +9,7 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/register" element={<Register />} /> {/* ROTA NOVA AQUI */}
+                <Route path="/register" element={<Register />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>
