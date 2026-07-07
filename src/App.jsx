@@ -1,13 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
-import Dashboard from './Dashboard'; // Importando o Dashboard real
-import './indexOriginal.css';
+import Register from './Register'; // IMPORTAMOS A TELA NOVA
+import Dashboard from './Dashboard';
+import './index.css';
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/register" element={<Register />} /> {/* ROTA NOVA AQUI */}
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="*" element={<Navigate to="/" />} />
             </Routes>

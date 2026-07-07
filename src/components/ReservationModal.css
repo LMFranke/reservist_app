@@ -260,3 +260,9 @@
     color: #1e293b;
     text-transform: capitalize; /* Deixa o dia da semana em maiúsculo */
 }
+
+/* Efeito para o Admin saber que pode clicar onde outras pessoas não podem */
+.schedule-item.admin-clickable:hover {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}

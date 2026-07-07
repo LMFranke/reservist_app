@@ -257,3 +257,58 @@
     border-color: var(--green-border);
     color: var(--green-text);
 }
+
+/* =========================================
+   BOTÃO DE EDIÇÃO ADMIN (NO CARD)
+========================================= */
+.btn-edit-room {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.btn-edit-room:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* =========================================
+   BOTÃO DE ADICIONAR SALA (ADMIN)
+========================================= */
+.btn-add-room {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    background-color: var(--primary, #0b0f19); /* Cor principal do projeto */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0;
+}
+
+.btn-add-room:hover {
+    background-color: #1e293b; /* Fica um pouco mais claro ao passar o mouse */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add-room svg {
+    width: 18px;
+    height: 18px;
+}

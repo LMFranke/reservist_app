@@ -6,78 +6,59 @@ const SCHEDULE_TIMES = [
     '14:00 às 15:30', '15:30 às 17:00', '17:00 às 18:00'
 ];
 
-export default function ReservationModal({ room, ocupacoesMock, minhasReservas, onClose, onConfirm, onCancel }) {
+export default function ReservationModal({ room, ocupacoesMock, minhasReservas, reservasTerceiros, isAdmin, onClose, onConfirm, onCancel }) {
     const [selectedTime, setSelectedTime] = useState(null);
     const [actionType, setActionType] = useState(null);
 
     const [dataSelecionada, setDataSelecionada] = useState(new Date());
     const hoje = new Date();
-
     const limiteFuturo = new Date();
     limiteFuturo.setDate(hoje.getDate() + 7);
 
-    const formatarChaveData = (date) => {
-        return date.toISOString().split('T')[0];
-    };
-
-    const formatarDataExibicao = (date) => {
-        return date.toLocaleDateString('pt-BR', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long'
-        });
-    };
+    const formatarChaveData = (date) => date.toISOString().split('T')[0];
+    const formatarDataExibicao = (date) => date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
     const chaveDataAtual = formatarChaveData(dataSelecionada);
     const minhasReservasNoDia = minhasReservas[chaveDataAtual] || [];
 
+    // Pega as reservas de outras contas neste dia específico
+    const terceirosNoDia = reservasTerceiros[chaveDataAtual] || {};
+
     const isHoje = chaveDataAtual === formatarChaveData(hoje);
     const isLimite = chaveDataAtual === formatarChaveData(limiteFuturo);
 
-    // --- NOVA LÓGICA: Verifica se o horário já passou ---
     const isSlotInPast = (timeString) => {
-        // Se a data selecionada for de amanhã em diante, nenhum horário passou
         if (!isHoje) return false;
-
-        // Pega apenas a hora final do texto (Ex: de "14:00 às 15:30", pega "15:30")
         const [, end] = timeString.split(' às ');
         const [endH, endM] = end.split(':').map(Number);
-
         const agora = new Date();
         const currentTotal = agora.getHours() * 60 + agora.getMinutes();
         const endTotal = endH * 60 + endM;
-
-        // Se a hora atual for maior ou igual ao fim do horário da sala, ele encerrou
         return currentTotal >= endTotal;
     };
 
     const avancarDia = () => {
         const proximo = new Date(dataSelecionada);
         proximo.setDate(proximo.getDate() + 1);
-        if (proximo <= limiteFuturo) {
-            setDataSelecionada(proximo);
-            setSelectedTime(null);
-            setActionType(null);
-        }
+        if (proximo <= limiteFuturo) { setDataSelecionada(proximo); setSelectedTime(null); setActionType(null); }
     };
 
     const voltarDia = () => {
         const anterior = new Date(dataSelecionada);
         anterior.setDate(anterior.getDate() - 1);
-        if (anterior.setHours(0,0,0,0) >= hoje.setHours(0,0,0,0)) {
-            setDataSelecionada(anterior);
-            setSelectedTime(null);
-            setActionType(null);
-        }
+        if (anterior.setHours(0,0,0,0) >= hoje.setHours(0,0,0,0)) { setDataSelecionada(anterior); setSelectedTime(null); setActionType(null); }
     };
 
-    const handleItemClick = (time, isFree, isMinhaReservaAqui) => {
+    const handleItemClick = (time, isFree, isMinhaReservaAqui, isOcupadoPorTerceiro) => {
         if (isFree) {
             setSelectedTime(time);
             setActionType('reserve');
         } else if (isMinhaReservaAqui) {
             setSelectedTime(time);
             setActionType('cancel');
+        } else if (isAdmin && isOcupadoPorTerceiro) {
+            setSelectedTime(time);
+            setActionType('admin_override');
         }
     };
 
@@ -85,8 +66,10 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
         if (actionType === 'reserve') {
             onConfirm(room.id, chaveDataAtual, selectedTime);
         } else if (actionType === 'cancel') {
-            // Agora enviamos o horário específico que queremos deletar
-            onCancel(room.id, chaveDataAtual, selectedTime);
+            onCancel(room.id, chaveDataAtual, selectedTime, false);
+        } else if (actionType === 'admin_override') {
+            const isMockDelete = isHoje && ocupacoesMock?.[selectedTime] && !terceirosNoDia[selectedTime];
+            onCancel(room.id, chaveDataAtual, selectedTime, !!isMockDelete);
         }
         setSelectedTime(null);
         setActionType(null);
@@ -97,11 +80,11 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
             <div className="modal-content">
                 <div className="modal-header">
                     <div className="modal-title-group">
-                        <div className="icon-box">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <div className="icon-box" style={{ backgroundColor: isAdmin ? '#fef2f2' : '#f1f5f9', color: isAdmin ? '#ef4444' : '#64748b' }}>
+                            {isAdmin ? <span style={{ fontSize: '1.2rem' }}>🛡️</span> : <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>}
                         </div>
                         <div>
-                            <h2 id="main-modal-title">{room.title}</h2>
+                            <h2 id="main-modal-title">{room.title} {isAdmin && <span style={{fontSize:'0.8rem', color:'#ef4444', marginLeft:'0.5rem'}}>Modo Admin</span>}</h2>
                             <p>Agende horários com até 1 semana de antecedência</p>
                         </div>
                     </div>
@@ -111,25 +94,9 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
                 </div>
 
                 <nav className="date-navigation" aria-label="Navegação de datas">
-                    <button
-                        className="nav-date-btn"
-                        onClick={voltarDia}
-                        disabled={isHoje}
-                        title="Dia anterior"
-                    >
-                        &larr;
-                    </button>
-                    <time className="current-date-display" dateTime={chaveDataAtual}>
-                        {formatarDataExibicao(dataSelecionada)}
-                    </time>
-                    <button
-                        className="nav-date-btn"
-                        onClick={avancarDia}
-                        disabled={isLimite}
-                        title="Próximo dia"
-                    >
-                        &rarr;
-                    </button>
+                    <button className="nav-date-btn" onClick={voltarDia} disabled={isHoje}>&larr;</button>
+                    <time className="current-date-display" dateTime={chaveDataAtual}>{formatarDataExibicao(dataSelecionada)}</time>
+                    <button className="nav-date-btn" onClick={avancarDia} disabled={isLimite}>&rarr;</button>
                 </nav>
 
                 <div className="modal-body">
@@ -137,26 +104,32 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
                         <ul className="schedule-list" style={{ listStyle: 'none', padding: 0 }}>
                             {SCHEDULE_TIMES.map((time) => {
                                 const isMinhaReservaAqui = minhasReservasNoDia.includes(time);
-                                const ocupanteMock = isHoje ? ocupacoesMock?.[time] : null;
+                                const ocupanteUsuarioReal = terceirosNoDia[time]; // E-mail de quem reservou real
+                                const ocupanteMock = isHoje ? ocupacoesMock?.[time] : null; // Nome mockado (ex: Diretoria)
 
-                                // Nova verificação de encerramento do horário
+                                // O nome exibido dá preferência ao sistema real, depois ao mock
+                                const ocupanteFinal = ocupanteUsuarioReal || ocupanteMock;
+
                                 const passou = isSlotInPast(time);
 
-                                // Só será livre se não for meu, não for do mock, E NÃO TIVER PASSADO
-                                const isFree = !isMinhaReservaAqui && !ocupanteMock && !passou;
+                                const isOcupadoPorTerceiro = !!ocupanteFinal;
+                                const isFree = !isMinhaReservaAqui && !isOcupadoPorTerceiro && !passou;
                                 const isSelected = selectedTime === time;
 
                                 let itemClass = 'schedule-item';
                                 if (!isFree && !isMinhaReservaAqui) itemClass += ' occupied';
                                 if (isMinhaReservaAqui) itemClass += ' my-reservation';
                                 if (isSelected) itemClass += ' selected';
+                                if (isAdmin && !isFree && !passou && isOcupadoPorTerceiro) itemClass += ' admin-clickable';
+
+                                const isClickable = isFree || isMinhaReservaAqui || (isAdmin && isOcupadoPorTerceiro && !passou);
 
                                 return (
                                     <li
                                         key={time}
                                         className={itemClass}
-                                        onClick={() => handleItemClick(time, isFree, isMinhaReservaAqui)}
-                                        style={{ cursor: (isFree || isMinhaReservaAqui) ? 'pointer' : 'default' }}
+                                        onClick={() => isClickable && handleItemClick(time, isFree, isMinhaReservaAqui, isOcupadoPorTerceiro)}
+                                        style={{ cursor: isClickable ? 'pointer' : 'default' }}
                                     >
                                         <div className="time-info">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -164,14 +137,16 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
                                         </div>
 
                                         {isFree && <span className="pill green" style={{ marginBottom: 0 }}>Livre</span>}
-
-                                        {/* Status baseados nas condições: */}
                                         {isMinhaReservaAqui && <div className="occupant-info" style={{ color: 'var(--primary)', fontWeight: 500 }}>Sua Reserva</div>}
 
-                                        {ocupanteMock && !isMinhaReservaAqui && <div className="occupant-info" style={{ color: 'var(--text-muted)' }}>{ocupanteMock}</div>}
+                                        {/* Exibe o E-mail de quem reservou, ou a string Mockada (Ex: Equipe de Automação) */}
+                                        {ocupanteFinal && !isMinhaReservaAqui && (
+                                            <div className="occupant-info" style={{ color: 'var(--text-muted)' }}>
+                                                {ocupanteFinal}
+                                            </div>
+                                        )}
 
-                                        {/* Mostra "Encerrado" apenas se não houver dono nem mock e a hora já passou */}
-                                        {passou && !isMinhaReservaAqui && !ocupanteMock && <div className="occupant-info" style={{ color: 'var(--text-muted)' }}>Encerrado</div>}
+                                        {passou && !isMinhaReservaAqui && !ocupanteFinal && <div className="occupant-info" style={{ color: 'var(--text-muted)' }}>Encerrado</div>}
                                     </li>
                                 );
                             })}
@@ -180,21 +155,19 @@ export default function ReservationModal({ room, ocupacoesMock, minhasReservas, 
                 </div>
 
                 {selectedTime && (
-                    <div className="confirm-box" style={{ display: 'block' }}>
-                        <p id="confirmTimeText">
-                            {actionType === 'reserve'
-                                ? `Confirmar agendamento para o dia ${dataSelecionada.getDate()}/${dataSelecionada.getMonth()+1} das ${selectedTime}?`
-                                : `Deseja cancelar sua reserva do dia ${dataSelecionada.getDate()}/${dataSelecionada.getMonth()+1} das ${selectedTime}?`
-                            }
+                    <div className="confirm-box" style={{ display: 'block', backgroundColor: actionType === 'admin_override' ? '#fef2f2' : '#f8fafc', borderColor: actionType === 'admin_override' ? '#fca5a5' : '#e2e8f0' }}>
+                        <p id="confirmTimeText" style={{ color: actionType === 'admin_override' ? '#991b1b' : '#1e293b' }}>
+                            {actionType === 'reserve' && `Confirmar agendamento para ${dataSelecionada.getDate()}/${dataSelecionada.getMonth()+1} das ${selectedTime}?`}
+                            {actionType === 'cancel' && `Deseja cancelar sua reserva das ${selectedTime}?`}
+                            {actionType === 'admin_override' && `Forçar exclusão da reserva de terceiros das ${selectedTime}?`}
                         </p>
                         <div className="confirm-actions">
-                            <button className="btn-outline" onClick={() => { setSelectedTime(null); setActionType(null); }}>
-                                Voltar
-                            </button>
-                            {actionType === 'reserve' ? (
-                                <button className="btn-primary" onClick={handleConfirm}>Confirmar Reserva</button>
-                            ) : (
-                                <button className="btn-danger" onClick={handleConfirm}>Cancelar Reserva</button>
+                            <button className="btn-outline" onClick={() => { setSelectedTime(null); setActionType(null); }}>Voltar</button>
+                            {actionType === 'reserve' && <button className="btn-primary" onClick={handleConfirm}>Confirmar Reserva</button>}
+                            {(actionType === 'cancel' || actionType === 'admin_override') && (
+                                <button className="btn-danger" style={{ backgroundColor: '#ef4444' }} onClick={handleConfirm}>
+                                    {actionType === 'admin_override' ? 'Forçar Exclusão' : 'Cancelar Reserva'}
+                                </button>
                             )}
                         </div>
                     </div>

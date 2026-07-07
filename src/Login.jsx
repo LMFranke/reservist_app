@@ -1,37 +1,48 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
-    const [erroEmail, setErroEmail] = useState(false);
-    const [erroSenha, setErroSenha] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [erroLogin, setErroLogin] = useState(''); // Estado único de erro
 
-    const navigate = useNavigate(); // Hook do React Router para mudar de página
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        let isValid = true;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setErroLogin('');
 
-        if (!email || !emailRegex.test(email)) {
-            setErroEmail(true);
-            isValid = false;
-        } else {
-            setErroEmail(false);
+        // Bypass do Administrador (Continua funcionando independente de cadastro)
+        if (email === 'admin' && senha === 'admin') {
+            localStorage.setItem('userEmail', 'admin@sistema.com');
+            localStorage.setItem('userName', 'Administrador do Sistema');
+            localStorage.setItem('userRole', 'ADMIN');
+            navigate('/dashboard');
+            return;
         }
 
-        if (senha.length < 8) {
-            setErroSenha(true);
-            isValid = false;
-        } else {
-            setErroSenha(false);
+        if (!email || !senha) {
+            setErroLogin('Preencha e-mail e senha.');
+            return;
         }
 
-        if (isValid) {
-            localStorage.setItem('userEmail', email);
-            navigate('/dashboard'); // Navega para a rota do dashboard em vez de mudar o window.location
+        // Lê o "banco de dados" de usuários
+        const users = JSON.parse(localStorage.getItem('appUsers') || '[]');
+
+        // Procura um usuário que combine e-mail E senha
+        const validUser = users.find(u => u.email === email && u.password === senha);
+
+        if (validUser) {
+            // Sucesso! Salva as informações da sessão
+            localStorage.setItem('userEmail', validUser.email);
+            localStorage.setItem('userName', validUser.username); // <-- CONFIRME ESTA LINHA
+            localStorage.setItem('userRole', validUser.role);
+            navigate('/dashboard');
+        } else {
+            // Falha
+            setErroLogin('E-mail ou senha incorretos.');
         }
     };
 
@@ -44,6 +55,9 @@ export default function Login() {
                 <h1 className="login-title">Reservista</h1>
                 <p className="login-subtitle">Sistema de Reserva de Salas</p>
 
+                {/* Exibição de Erro Dinâmica */}
+                {erroLogin && <div className="alert-box" style={{ marginBottom: '1rem', padding: '0.75rem', fontSize: '0.85rem' }}>{erroLogin}</div>}
+
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">E-mail</label>
@@ -52,29 +66,46 @@ export default function Login() {
                             id="email"
                             className="form-control"
                             placeholder="seu@email.com"
-                            style={{ borderColor: erroEmail ? 'var(--red-text)' : '' }}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
-                        {erroEmail && <div className="error-msg">Por favor, insira um e-mail válido.</div>}
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="senha">Senha</label>
-                        <input
-                            type="password"
-                            id="senha"
-                            className="form-control"
-                            placeholder="••••••••"
-                            style={{ borderColor: erroSenha ? 'var(--red-text)' : '' }}
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                        />
-                        {erroSenha && <div className="error-msg">A senha deve ter pelo menos 8 caracteres.</div>}
+                        <div className="password-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="senha"
+                                className="form-control password-input"
+                                placeholder="••••••••"
+                                value={senha}
+                                onChange={(e) => setSenha(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                className="btn-toggle-password"
+                                onClick={() => setShowPassword(!showPassword)}
+                                title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                            >
+                                {showPassword ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" className="btn btn-primary">Entrar</button>
                 </form>
+
+                {/* LINK PARA CRIAR CONTA */}
+                <div className="login-links" style={{ marginTop: '1.5rem' }}>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                        Não possui uma conta? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Criar uma conta</Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
